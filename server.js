@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
+const https = require("https");
 const models = require("./models");
 const {
   Sequelize: { Op },
@@ -7,7 +9,13 @@ const {
 const { QueryTypes } = require("sequelize");
 const app = express();
 const port = 8080;
-
+const option = {
+  key: fs.readFileSync("key.pem"),
+  cert: fs.readFileSync("cert.pem"),
+  //경로는 본인꺼에 맞게 설정합시다.
+  passphrase: "qkrrjsgnl1!",
+  agent: false,
+};
 app.use(express.json());
 app.use(cors());
 
@@ -111,7 +119,8 @@ app.get("/w/:title(*)", (req, res) => {
     });
 });
 
-app.listen(port, () => {
+//app.listen(port, () => {});
+https.createServer(option, app).listen(port, () => {
   models.sequelize
     .sync()
     .then(() => {
